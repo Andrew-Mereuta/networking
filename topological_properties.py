@@ -19,21 +19,28 @@ def read_file():
     return edges, nodes
 
 
-def get_average_degree(network: ig.Graph):
-    degrees = network.degree()
-    avg_degree = sum(degrees) / len(degrees)
-    return avg_degree
-
-
 if __name__ == "__main__":
     edges, nodes = read_file()
-    network = ig.Graph(len(nodes), edges)
+    network = ig.Graph(edges)
+    degrees = network.degree()
 
     # PART A.1
-    print('Number of nodes: ', len(nodes))
-    print('Number of links: ', len(edges))
-    print('Average degree: ', get_average_degree(network))
-    print('Standard deviation: ', np.std(np.array(network.degree())))
+    print('Number of nodes: ', len(nodes))  # 403
+    print('Number of links: ', len(edges))  # 9889
+    print('Average degree: ', sum(degrees) / len(degrees))  # 48.95
+    print('Standard deviation: ', np.std(np.array(network.degree())))  # 31.71
 
     # PART A.2
-
+    degrees = network.degree()
+    degree_frequency = {}
+    for degree in degrees:
+        if degree in degree_frequency:
+            degree_frequency[degree] += 1
+        else:
+            degree_frequency[degree] = 1
+    degree_frequency = dict(sorted(degree_frequency.items()))
+    plt.plot(list(degree_frequency.keys()), list(degree_frequency.values()), marker='^', linestyle='-')
+    plt.xlabel('Degree')
+    plt.ylabel('Frequency')
+    plt.title('Degree Distribution')
+    plt.show()
