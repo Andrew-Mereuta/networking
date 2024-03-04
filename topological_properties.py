@@ -49,4 +49,8 @@ if __name__ == "__main__":
     print('Degree correlation (assortativity): ', network.assortativity_degree())  # -0.07
 
     # PART A.4
-    print('Clustering coefficient', network.transitivity_undirected())  # 0.235
+    print('Clustering coefficient: ', network.transitivity_undirected())  # 0.235
+
+    # PART A.5
+    print('Average hop count: ', network.average_path_length())  # 1.953
+    print('Diameter : ', network.diameter())  # 4
