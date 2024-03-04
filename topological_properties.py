@@ -47,3 +47,6 @@ if __name__ == "__main__":
 
     # PART A.3
     print('Degree correlation (assortativity): ', network.assortativity_degree())  # -0.07
+
+    # PART A.4
+    print('Clustering coefficient', network.transitivity_undirected())  # 0.235
