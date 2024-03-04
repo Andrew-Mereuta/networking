@@ -44,3 +44,6 @@ if __name__ == "__main__":
     plt.ylabel('Frequency')
     plt.title('Degree Distribution')
     plt.show()
+
+    # PART A.3
+    print('Degree correlation (assortativity): ', network.assortativity_degree())  # -0.07
