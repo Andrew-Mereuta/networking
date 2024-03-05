@@ -19,6 +19,29 @@ def read_file():
     return edges, nodes
 
 
+def plot_probability(dictionary):
+    frequencies = {}
+    for _, weight in dictionary.items():
+        if weight in frequencies:
+            frequencies[weight] += 1
+        else:
+            frequencies[weight] = 1
+
+    total_count = sum(frequencies.values())
+    probabilities = {weight: count / total_count for weight, count in frequencies.items()}
+    sorted_probabilities = sorted(probabilities.items())
+    weight_values, probabilities = zip(*sorted_probabilities)
+
+    plt.plot(weight_values, probabilities, marker='o', linestyle='-')
+    plt.xscale('log')
+    plt.yscale('log')
+    plt.xlabel('Weight values, log scaled')
+    plt.ylabel('Probability, log scaled')
+    plt.title('Probability Distribution')
+    plt.savefig('a_7.png')
+    plt.show()
+
+
 if __name__ == "__main__":
     edges, nodes = read_file()
     network = ig.Graph(len(nodes), edges)
@@ -57,3 +80,15 @@ if __name__ == "__main__":
     # PART A.5
     print('Average hop count: ', network.average_path_length())  # 1.9530140858980531
     print('Diameter : ', network.diameter())  # 4
+
+    # PART A.7
+    weight_by_edge = {}
+    for edge in edges:
+        (n1, n2) = edge
+        if edge in weight_by_edge:
+            weight_by_edge[edge] = weight_by_edge[edge] + 1
+        elif (n2, n1) in weight_by_edge:
+            weight_by_edge[(n2, n1)] = weight_by_edge[(n2, n1)] + 1
+        else:
+            weight_by_edge[edge] = 1
+    plot_probability(weight_by_edge)
