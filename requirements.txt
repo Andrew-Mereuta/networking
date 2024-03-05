@@ -1,0 +1,5 @@
+pandas
+igraph
+numpy
+matplotlib
+openpyxl

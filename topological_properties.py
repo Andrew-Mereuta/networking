@@ -39,10 +39,13 @@ if __name__ == "__main__":
         else:
             degree_frequency[degree] = 1
     degree_frequency = dict(sorted(degree_frequency.items()))
+    for key, value in degree_frequency.items():
+        degree_frequency[key] = float(value/len(nodes))
     plt.plot(list(degree_frequency.keys()), list(degree_frequency.values()), marker='^', linestyle='-')
     plt.xlabel('Degree')
-    plt.ylabel('Frequency')
+    plt.ylabel('P(degree))')
     plt.title('Degree Distribution')
+    plt.savefig('a_2.png')
     plt.show()
 
     # PART A.3
