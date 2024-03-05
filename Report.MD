@@ -1,18 +1,19 @@
 # Modelling and Data analysis in Complex systems report
 ## Group information
 Group 1
-| Name | Student number |
-|-|-|
-| Andrei  Mereuta |  |
-| Anna Kalandadze |  |
-| Marco Bak | 5066212 |
+
+| Name            | Student number |
+|------           |----------------|
+| Andrei Mereuta  | 5230527 |
+| Anna Kalandadze | 5268915 |
+| Marco Bak       | 5066212 |
 
 ## Assignments
 ### A.1
 Number of nodes is: 403. \
 Number of links is: 9889. \
 Average degree is: 48.95. \
-Standaard deviation of the degree is: 31.71
+Standard deviation of the degree is: 31.71
 
 ### A.2
 ![Degree distribution of the network](./a_2.png)
