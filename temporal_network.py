@@ -10,7 +10,7 @@ def read_file():
     dataframe = pd.read_excel(file_name)
     nodes = set()
     edges_by_timestamp = {}
-
+    edges = list()
     for index, row in dataframe.iterrows():
         edge = (row['node1'], row['node2'])
         nodes.add(row['node1'])
@@ -20,8 +20,38 @@ def read_file():
             edges_by_timestamp[timestamp].append(edge)
         else:
             edges_by_timestamp[timestamp] = [edge]
+        edge = (row['node1'], row['node2'])
+        edges.append(edge)
 
-    return dict(sorted(edges_by_timestamp.items())), nodes
+    return dict(sorted(edges_by_timestamp.items())), nodes, edges
+
+
+def calculate_degree(edges, nodes):
+    degrees = {node: 0 for node in nodes}
+    for (n1, n2) in edges:
+        degrees[n1] += 1
+        degrees[n2] += 1
+
+    return sorted(nodes, key=lambda x: degrees[x], reverse=True)
+
+
+def calculate_weight_node(edges, nodes):
+    weight_by_edge = {}
+    for edge in edges:
+        (n1, n2) = edge
+        if edge in weight_by_edge:
+            weight_by_edge[edge] = weight_by_edge[edge] + 1
+        elif (n2, n1) in weight_by_edge:
+            weight_by_edge[(n2, n1)] = weight_by_edge[(n2, n1)] + 1
+        else:
+            weight_by_edge[edge] = 1
+
+    node_strength = {node: 0 for node in nodes}
+    for node in nodes:
+        for edge, weight in weight_by_edge.items():
+            if node in edge:
+                node_strength[node] += weight
+    return sorted(nodes, key=lambda x: node_strength[x], reverse=True)
 
 
 def find_first_timestamp_and_link(edges_by_timestamp, seed):
@@ -67,7 +97,7 @@ def get_networks(edges_by_timestamp: dict, nodes: list[int]):
 
         networks.append(ig.Graph(infected_links))
 
-    return networks, infected_nodes_by_timestamp, infected_nodes_by_seed
+    return networks, infected_nodes_by_timestamp, dict(sorted(infected_nodes_by_seed.items(), key=lambda item: item[1]))
 
 
 def calculate_average_infected(infected_nodes_by_timestamp):
@@ -77,6 +107,7 @@ def calculate_average_infected(infected_nodes_by_timestamp):
         total_infected = sum(num_infected_list)
         average_infected[timestamp] = total_infected / num_networks
     return average_infected
+
 
 def calculate_standard_deviation(infected_nodes_by_timestamp):
     std_deviation_by_timestamp = {}
@@ -105,9 +136,9 @@ def plot_average_infected_with_errorbars(infected_nodes_by_timestamp):
     plt.legend()
     plt.show()
 
-#b9
-def plot_infected_nodes_by_seed(infected_nodes_by_seed):
-    sorted_infected_nodes = dict(sorted(infected_nodes_by_seed.items(), key=lambda item: item[1]))
+
+# b9
+def plot_infected_nodes_by_seed(sorted_infected_nodes):
 
     seeds = list(sorted_infected_nodes.keys())
     timestamps = list(sorted_infected_nodes.values())
@@ -127,19 +158,45 @@ def plot_infected_nodes_by_seed(infected_nodes_by_seed):
     plt.tight_layout()
     plt.show()
 
-    plt.tight_layout()
+#b10
+def centrality(nodes, edges, sorted_infected_nodes):
+    sorted_infected_nodes = list(sorted_infected_nodes.keys())
+    f = [0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5]
+    degrees = calculate_degree(edges, nodes)
+    weights = calculate_weight_node(edges, nodes)
+    rRD_values = []
+    rRS_values = []
+    for v in f:
+        fraction = int(v * len(nodes))
+        Rf = set(sorted_infected_nodes[0:fraction])
+        Rf_degree = set(degrees[0:fraction])
+        Rf_strength = set(weights[0:fraction])
+        rRD = len(Rf.intersection(Rf_degree))/len(Rf)
+        rRS = len(Rf.intersection(Rf_strength))/len(Rf)
+
+        rRD_values.append(rRD)
+        rRS_values.append(rRS)
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(f, rRD_values, marker='o', label='rRD')
+    plt.plot(f, rRS_values, marker='s', label='rRS')
+    plt.xlabel('f')
+    plt.ylabel('Recognition Rate')
+    plt.title('Recognition Rate vs. f')
+    plt.xticks(f)
+    plt.legend()
     plt.show()
 
 
 
 if __name__ == "__main__":
-    edges_by_timestamp, nodes = read_file()
-    networks, infected_nodes_by_timestamp, infected_nodes_by_seed = get_networks(edges_by_timestamp, nodes)
+    edges_by_timestamp, nodes, edges = read_file()
+    networks, infected_nodes_by_timestamp, sorted_infected_nodes = get_networks(edges_by_timestamp, nodes)
     print(calculate_average_infected(infected_nodes_by_timestamp))
-
 
     print(len(networks))
     plot_average_infected_with_errorbars(infected_nodes_by_timestamp)
 
-    plot_infected_nodes_by_seed(infected_nodes_by_seed)
+    plot_infected_nodes_by_seed(sorted_infected_nodes)
 
+    centrality(nodes, edges, sorted_infected_nodes)
