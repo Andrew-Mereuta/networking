@@ -46,6 +46,7 @@ def infect(edges_by_timestamp: dict, infected: set, timestamp: int):
 def get_networks(edges_by_timestamp: dict, nodes: list[int]):
     networks = []
     infected_nodes_by_timestamp = {}
+    infected_nodes_by_seed = {}
     for seed in nodes:
         infected_nodes = set()
         infected_nodes.add(seed)
@@ -56,15 +57,17 @@ def get_networks(edges_by_timestamp: dict, nodes: list[int]):
             infected_ns, infected_ls = infect(edges_by_timestamp, infected_nodes, timestamp)
             infected_nodes = infected_ns.union(infected_nodes)
             infected_links.extend(infected_ls)
-
             if timestamp in infected_nodes_by_timestamp:
                 infected_nodes_by_timestamp[timestamp].append(len(infected_nodes))
             else:
                 infected_nodes_by_timestamp[timestamp] = [len(infected_nodes)]
+            if seed not in infected_nodes_by_seed:
+                if len(infected_nodes) > 0.8 * len(nodes):
+                    infected_nodes_by_seed[seed] = timestamp
 
         networks.append(ig.Graph(infected_links))
 
-    return networks, infected_nodes_by_timestamp
+    return networks, infected_nodes_by_timestamp, infected_nodes_by_seed
 
 
 def calculate_average_infected(infected_nodes_by_timestamp):
@@ -102,13 +105,41 @@ def plot_average_infected_with_errorbars(infected_nodes_by_timestamp):
     plt.legend()
     plt.show()
 
+#b9
+def plot_infected_nodes_by_seed(infected_nodes_by_seed):
+    sorted_infected_nodes = dict(sorted(infected_nodes_by_seed.items(), key=lambda item: item[1]))
+
+    seeds = list(sorted_infected_nodes.keys())
+    timestamps = list(sorted_infected_nodes.values())
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(seeds, timestamps, marker='o', linestyle='-', color='b')
+    plt.xlabel('Seed Nodes')
+    plt.ylabel('Timestamp to Reach Goal')
+    plt.title('Timestamp for Nodes to Reach Goal for Each Seed')
+    num_ticks = 50
+    if len(seeds) > num_ticks:
+        step = len(seeds) // num_ticks
+        plt.xticks(seeds[::step], rotation=45, fontsize=5)
+    else:
+        plt.xticks(seeds, rotation=45, fontsize=5)
+
+    plt.tight_layout()
+    plt.show()
+
+    plt.tight_layout()
+    plt.show()
+
+
 
 if __name__ == "__main__":
     edges_by_timestamp, nodes = read_file()
-    networks, infected_nodes_by_timestamp = get_networks(edges_by_timestamp, nodes)
+    networks, infected_nodes_by_timestamp, infected_nodes_by_seed = get_networks(edges_by_timestamp, nodes)
     print(calculate_average_infected(infected_nodes_by_timestamp))
 
 
     print(len(networks))
     plot_average_infected_with_errorbars(infected_nodes_by_timestamp)
+
+    plot_infected_nodes_by_seed(infected_nodes_by_seed)
 
