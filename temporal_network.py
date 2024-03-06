@@ -28,9 +28,13 @@ def read_file():
 
 def calculate_degree(edges, nodes):
     degrees = {node: 0 for node in nodes}
+    used_edges = set()
     for (n1, n2) in edges:
-        degrees[n1] += 1
-        degrees[n2] += 1
+        if not ((n1, n2) in used_edges or (n2, n1) in used_edges):
+            degrees[n1] += 1
+            degrees[n2] += 1
+            used_edges.add((n1, n2))
+            used_edges.add((n2, n1))
 
     return sorted(nodes, key=lambda x: degrees[x], reverse=True)
 
@@ -52,6 +56,21 @@ def calculate_weight_node(edges, nodes):
             if node in edge:
                 node_strength[node] += weight
     return sorted(nodes, key=lambda x: node_strength[x], reverse=True)
+
+
+def first_contact_in_network(edges_by_timestamp):
+    first_contact = {}
+    for (timestamp, edges) in edges_by_timestamp.items():
+        for (n1, n2) in edges:
+            if n1 in first_contact:
+                first_contact[n1] = min(timestamp, first_contact[n1])
+            else:
+                first_contact[n1] = timestamp
+            if n2 in first_contact:
+                first_contact[n2] = min(timestamp, first_contact[n2])
+            else:
+                first_contact[n2] = timestamp
+    return dict(sorted(first_contact.items(), key=lambda x: x[1]))
 
 
 def find_first_timestamp_and_link(edges_by_timestamp, seed):
@@ -159,32 +178,39 @@ def plot_infected_nodes_by_seed(sorted_infected_nodes):
     plt.show()
 
 #b10
-def centrality(nodes, edges, sorted_infected_nodes):
+def centrality(nodes, edges, sorted_infected_nodes, edges_by_timestamp):
     sorted_infected_nodes = list(sorted_infected_nodes.keys())
     f = [0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5]
     degrees = calculate_degree(edges, nodes)
     weights = calculate_weight_node(edges, nodes)
+    fc = list(first_contact_in_network(edges_by_timestamp).keys())
     rRD_values = []
     rRS_values = []
+    rFS_values = []
     for v in f:
         fraction = int(v * len(nodes))
         Rf = set(sorted_infected_nodes[0:fraction])
         Rf_degree = set(degrees[0:fraction])
         Rf_strength = set(weights[0:fraction])
+        Rf_contact = set(fc[0:fraction])
         rRD = len(Rf.intersection(Rf_degree))/len(Rf)
         rRS = len(Rf.intersection(Rf_strength))/len(Rf)
+        rFS = len(Rf.intersection(Rf_contact))/len(Rf)
 
         rRD_values.append(rRD)
         rRS_values.append(rRS)
+        rFS_values.append(rFS)
 
     plt.figure(figsize=(10, 6))
     plt.plot(f, rRD_values, marker='o', label='rRD')
     plt.plot(f, rRS_values, marker='s', label='rRS')
+    plt.plot(f, rFS_values, marker='^', label='rFS')
     plt.xlabel('f')
     plt.ylabel('Recognition Rate')
     plt.title('Recognition Rate vs. f')
     plt.xticks(f)
     plt.legend()
+    plt.savefig('b_10_11.png')
     plt.show()
 
 
@@ -199,4 +225,4 @@ if __name__ == "__main__":
 
     plot_infected_nodes_by_seed(sorted_infected_nodes)
 
-    centrality(nodes, edges, sorted_infected_nodes)
+    centrality(nodes, edges, sorted_infected_nodes, edges_by_timestamp)
