@@ -8,13 +8,14 @@ file_name = "SFHH.xlsx"
 
 def read_file():
     dataframe = pd.read_excel(file_name)
-    edges = []
+    edges = set()
     nodes = set()
     for index, row in dataframe.iterrows():
         edge = (row['node1'], row['node2'])
+        if not (edge in edges) and not ((row['node2'], row['node1']) in edges):
+            edges.add(edge)
         nodes.add(row['node1'])
         nodes.add(row['node2'])
-        edges.append(edge)
 
     return edges, nodes
 
@@ -42,19 +43,46 @@ def plot_probability(dictionary):
     plt.show()
 
 
+def calculate_degree(edges, nodes):
+    degrees = {node: 0 for node in nodes}
+    used_edges = set()
+    for (n1, n2) in edges:
+        if not ((n1, n2) in used_edges or (n2, n1) in used_edges):
+            degrees[n1] += 1
+            degrees[n2] += 1
+            used_edges.add((n1, n2))
+            used_edges.add((n2, n1))
+
+    return sorted(nodes, key=lambda x: degrees[x], reverse=True)
+
+
+def get_weight_by_edge():
+    dataframe = pd.read_excel(file_name)
+    weight_by_edge = {}
+    for index, row in dataframe.iterrows():
+        edge = (row['node1'], row['node2'])
+        if edge in weight_by_edge:
+            weight_by_edge[edge] += 1
+        elif (row['node2'], row['node1']) in weight_by_edge:
+            weight_by_edge[(row['node2'], row['node1'])] += 1
+        else:
+            weight_by_edge[edge] = 1
+
+    return weight_by_edge
+
+
 if __name__ == "__main__":
     edges, nodes = read_file()
     network = ig.Graph(len(nodes), edges)
-    degrees = network.degree()
+    degrees = network.degree()[1:]
 
     # PART A.1
     print('Number of nodes: ', len(nodes))  # 403
     print('Number of links: ', len(edges))  # 70261
     print('Average degree: ', sum(degrees) / len(degrees))  # 347.8267326732673
-    print('Standard deviation: ', np.std(np.array(network.degree())))  # 377.2790805649033
+    print('Standard deviation: ', np.std(np.array(degrees)))  # 377.2790805649033
 
     # PART A.2
-    degrees = network.degree()
     degree_frequency = {}
     for degree in degrees:
         if degree in degree_frequency:
@@ -82,13 +110,5 @@ if __name__ == "__main__":
     print('Diameter : ', network.diameter())  # 4
 
     # PART A.7
-    weight_by_edge = {}
-    for edge in edges:
-        (n1, n2) = edge
-        if edge in weight_by_edge:
-            weight_by_edge[edge] = weight_by_edge[edge] + 1
-        elif (n2, n1) in weight_by_edge:
-            weight_by_edge[(n2, n1)] = weight_by_edge[(n2, n1)] + 1
-        else:
-            weight_by_edge[edge] = 1
+    weight_by_edge = get_weight_by_edge()
     plot_probability(weight_by_edge)
