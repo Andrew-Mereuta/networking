@@ -45,3 +45,22 @@ So this graph most likely has no small world property.
 The graph is similar to power law function. To check it, we plot it on log-log scale:
 ![Weight distribution_log of the network](./a_7_log.png)
 We can see relatively straight line at the beginning, which then becomes more noisy and becomes horizontal. However, it looks like horizontal due to very low probabilities very close to 0. As vertical scale is quite big, the difference is not reflected in the graph. Based on two graphs, we think distribution follows power law.
+
+### B.8
+![Infected_per_timestamp](./b_8.png)
+TODO: explain that it looks strange because a lot of error bars
+
+### B.9
+![Infected_80_percent](./b_9.png)
+Explain graph here
+
+### B.10: 
+TODO: idk if we need to do what is stated after Attention: It is possible that many nodes have the same rank; 
+![recognition rate](./b_10.png)
+TODO: Answer: Which metric, the degree or the strength could better predict the influence of the
+nodes? Why?
+I think there is no general answer, degree works better when has 15+% and works worse with small %.
+
+### B.11: 
+TODO: Compare this nodal property with degree and strength: which feature better/worse reflects how influential a node is and why?
+![recognition rate contact](./b_11.png)

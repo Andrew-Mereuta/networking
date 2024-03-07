@@ -74,8 +74,8 @@ def first_contact_in_network(edges_by_timestamp):
 
 
 def find_first_timestamp_and_link(edges_by_timestamp, seed):
-    for timestamp, edges in edges_by_timestamp.items():
-        for (n1, n2) in edges:
+    for timestamp, edgess in edges_by_timestamp.items():
+        for (n1, n2) in edgess:
             if seed == n1 or seed == n2:
                 return timestamp, (n1, n2)
 
@@ -135,24 +135,22 @@ def calculate_standard_deviation(infected_nodes_by_timestamp):
         std_deviation_by_timestamp[timestamp] = std_deviation
     return std_deviation_by_timestamp
 
-
 def plot_average_infected_with_errorbars(infected_nodes_by_timestamp):
     timestamps = list(infected_nodes_by_timestamp.keys())
     averages = []
     std_deviations = []
     for timestamp, num_infected_list in infected_nodes_by_timestamp.items():
-        average = np.mean(num_infected_list)
+        average = calculate_average_infected(infected_nodes_by_timestamp)
         std_deviation = np.std(num_infected_list)
         averages.append(average)
         std_deviations.append(std_deviation)
-
-    # Plot
-    plt.errorbar(timestamps, averages, yerr=std_deviations, fmt='o-', label='Average Infected')
+    averages = list(calculate_average_infected(infected_nodes_by_timestamp).values())
+    std_deviations = list(calculate_standard_deviation(infected_nodes_by_timestamp).values())
+    plt.errorbar(timestamps, averages, yerr=std_deviations)
     plt.xlabel('Timestamp')
     plt.ylabel('Average Number of Infected Nodes (E[I(t)])')
     plt.title('Average Number of Infected Nodes Over Time')
     plt.savefig('b_8.png')
-    plt.legend()
     plt.show()
 
 
@@ -163,14 +161,14 @@ def plot_infected_nodes_by_seed(sorted_infected_nodes, assignment_num):
     timestamps = list(sorted_infected_nodes.values())
 
     plt.figure(figsize=(10, 6))
-    plt.plot(seeds, timestamps, marker='o', linestyle='-', color='b')
+    plt.plot(seeds, timestamps, marker='o', color='b')
     plt.xlabel('Seed Nodes')
     plt.ylabel('Timestamp to Reach Goal')
     plt.title('Timestamp for Nodes to Reach Goal for Each Seed')
     num_ticks = 50
     if len(seeds) > num_ticks:
-        step = len(seeds) // num_ticks
-        plt.xticks(seeds[::step], rotation=45, fontsize=5)
+        step = 10
+        plt.xticks(seeds[::step], rotation=45, fontsize=8)
     else:
         plt.xticks(seeds, rotation=45, fontsize=5)
 
@@ -179,7 +177,7 @@ def plot_infected_nodes_by_seed(sorted_infected_nodes, assignment_num):
     plt.show()
 
 #b10
-def centrality(nodes, edges, sorted_infected_nodes, edges_by_timestamp):
+def centrality(nodes, edges, sorted_infected_nodes, edges_by_timestamp, num):
     sorted_infected_nodes = list(sorted_infected_nodes.keys())
     f = [0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5]
     degrees = calculate_degree(edges, nodes)
@@ -205,15 +203,23 @@ def centrality(nodes, edges, sorted_infected_nodes, edges_by_timestamp):
     plt.figure(figsize=(10, 6))
     plt.plot(f, rRD_values, marker='o', label='rRD')
     plt.plot(f, rRS_values, marker='s', label='rRS')
-    plt.plot(f, rFS_values, marker='^', label='rFS')
-    plt.xlabel('f')
-    plt.ylabel('Recognition Rate')
-    plt.title('Recognition Rate vs. f')
-    plt.xticks(f)
-    plt.legend()
-    plt.savefig('b_10_11.png')
-    plt.show()
-
+    if num == "10":
+        plt.xlabel('Fraction according to nodes influence')
+        plt.ylabel('Recognition Rate')
+        plt.title('Recognition Rate for degree and strength vs fraction')
+        plt.xticks(f)
+        plt.legend()
+        plt.savefig('b_10.png')
+        plt.show()
+    else:
+        plt.plot(f, rFS_values, marker='^', label='r_first_contact')
+        plt.xlabel('Fraction according to nodes influence')
+        plt.ylabel('Recognition Rate')
+        plt.title('Recognition Rate for degree, strength and first contact vs fraction')
+        plt.xticks(f)
+        plt.legend()
+        plt.savefig('b_11.png')
+        plt.show()
 
 def get_networks_b12(edges_by_timestamp: dict, nodes: list[int], infection_goal):
     networks = []
@@ -249,20 +255,24 @@ def get_networks_b12(edges_by_timestamp: dict, nodes: list[int], infection_goal)
 
 if __name__ == "__main__":
     edges_by_timestamp, nodes, edges = read_file()
-    # networks, infected_nodes_by_timestamp, sorted_infected_nodes = get_networks(edges_by_timestamp, nodes, 0.8)
-    # print(calculate_average_infected(infected_nodes_by_timestamp))
+    networks, infected_nodes_by_timestamp, sorted_infected_nodes = get_networks(edges_by_timestamp, nodes, 0.8)
 
-    # print(len(networks))
+    # PART B.8
     # plot_average_infected_with_errorbars(infected_nodes_by_timestamp)
 
+    # PART B.9
     # plot_infected_nodes_by_seed(sorted_infected_nodes, "9")
 
-    # centrality(nodes, edges, sorted_infected_nodes, edges_by_timestamp)
+    # PART B.10
+    centrality(nodes, edges, sorted_infected_nodes, edges_by_timestamp, "10")
+
+    # PART B.11
+    centrality(nodes, edges, sorted_infected_nodes, edges_by_timestamp, "11")
 
     # # For 12 we need to rank on 10% reached.
     # networks, infected_nodes_by_timestamp, sorted_infected_nodes_12_1 = get_networks(edges_by_timestamp, nodes, 0.1)
     # plot_infected_nodes_by_seed(sorted_infected_nodes_12_1, "12_1")
 
     # Last metric bit more work, Need sum of timestamps divided by 80% * num of nodes
-    networks, infected_nodes_by_timestamp, sorted_infected_nodes_12_2 = get_networks_b12(edges_by_timestamp, nodes, 0.8)
-    plot_infected_nodes_by_seed(sorted_infected_nodes_12_2, "12_2")
+    # networks, infected_nodes_by_timestamp, sorted_infected_nodes_12_2 = get_networks_b12(edges_by_timestamp, nodes, 0.8)
+    # plot_infected_nodes_by_seed(sorted_infected_nodes_12_2, "12_2")
