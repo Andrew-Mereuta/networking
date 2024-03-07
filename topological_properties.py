@@ -34,12 +34,23 @@ def plot_probability(dictionary):
     weight_values, probabilities = zip(*sorted_probabilities)
 
     plt.plot(weight_values, probabilities, marker='o', linestyle='-')
-    plt.xscale('log')
-    plt.yscale('log')
-    plt.xlabel('Weight values, log scaled')
-    plt.ylabel('Probability, log scaled')
+
+    # plt.xscale('log')
+    # plt.yscale('log')
+    plt.xlabel('Weight values')
+    plt.ylabel('Probability')
     plt.title('Probability Distribution')
     plt.savefig('a_7.png')
+    plt.show()
+
+    plt.plot(weight_values, probabilities, marker='o', linestyle='-')
+
+    plt.xscale('log')
+    plt.yscale('log')
+    plt.xlabel('Weight values (log scaled)')
+    plt.ylabel('Probability (log scaled)')
+    plt.title('Probability Distribution')
+    plt.savefig('a_7_log.png')
     plt.show()
 
 
@@ -79,7 +90,7 @@ if __name__ == "__main__":
     # PART A.1
     print('Number of nodes: ', len(nodes))  # 403
     print('Number of links: ', len(edges))  # 70261
-    print('Average degree: ', sum(degrees) / len(degrees))  # 347.8267326732673
+    print('Average degree: ', 2 * len(edges)/len(nodes))  # 347.8267326732673
     print('Standard deviation: ', np.std(np.array(degrees)))  # 377.2790805649033
 
     # PART A.2
@@ -94,7 +105,7 @@ if __name__ == "__main__":
         degree_frequency[key] = float(value/len(nodes))
     plt.plot(list(degree_frequency.keys()), list(degree_frequency.values()), marker='^', linestyle='-')
     plt.xlabel('Degree')
-    plt.ylabel('P(degree)')
+    plt.ylabel('P(degree) - probability of degree')
     plt.title('Degree Distribution')
     plt.savefig('a_2.png')
     plt.show()
@@ -106,7 +117,17 @@ if __name__ == "__main__":
     print('Clustering coefficient: ', network.transitivity_undirected())  # 0.23590263303822398
 
     # PART A.5
+    # TODO check this
     print('Average hop count: ', network.average_path_length())  # 1.9530140858980531
+    sh = 0
+    pairs = 0
+    max = 0
+    for node1 in list(nodes)[:-1]:
+        for node2 in list(nodes)[1:]:
+            pairs += 1
+            sh += len(network.get_shortest_paths(node1, to=node2)[0]) - 1
+    print(sh/pairs)
+    print(max)
     print('Diameter : ', network.diameter())  # 4
 
     # PART A.7
