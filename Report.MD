@@ -48,11 +48,11 @@ We can see relatively straight line at the beginning, which then becomes more no
 
 ### B.8
 ![Infected_per_timestamp](./b_8.png)
-TODO: explain that it looks strange because a lot of error bars
+The graph looks like this, because the standard deviation is also plotted around the line displaying the average infection per timestep.
 
 ### B.9
 ![Infected_80_percent](./b_9.png)
-Explain graph here
+The graph shows the timestep in which each node i has infected 80% of the graph as the seed node., assuming the nodes are sorted from fastest to slowest infection rates.
 
 ### B.10: 
 TODO: idk if we need to do what is stated after Attention: It is possible that many nodes have the same rank; 
@@ -60,7 +60,12 @@ TODO: idk if we need to do what is stated after Attention: It is possible that m
 TODO: Answer: Which metric, the degree or the strength could better predict the influence of the
 nodes? Why?
 I think there is no general answer, degree works better when has 15+% and works worse with small %.
+When looking at the graph, the strength metric seems to be an overal better predictor then the degree metric, however, on a range of 15 to 45 percent, the performance of the degree is slightly better. Wheb the fraction can be lower than 15 percent, the strength significantly outperformes the degree metric.
 
 ### B.11: 
 TODO: Compare this nodal property with degree and strength: which feature better/worse reflects how influential a node is and why?
 ![recognition rate contact](./b_11.png)
+The f rating has the highest recognition, better predictor than strength and degree. 
+
+### B.12
+![Metrics infection speed](./b_12.png)

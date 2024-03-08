@@ -253,6 +253,32 @@ def get_networks_b12(edges_by_timestamp: dict, nodes: list[int], infection_goal)
     return networks, infected_nodes_by_timestamp, dict(sorted(infected_nodes_by_seed.items(), key=lambda item: item[1]))
 
 
+# b12
+def plot_different_infection_metrics(sorted_infected_nodes, assignment_num):
+
+    seeds = list(sorted_infected_nodes.keys())
+    timestamps = list(sorted_infected_nodes.values())
+    
+    plt.figure(figsize=(10, 6))
+    for method_name, infected_nodes in sorted_infected_nodes.items():
+        print(method_name)
+        seeds = list(infected_nodes.keys())
+        timestamps = list(infected_nodes.values())   
+        plt.plot(seeds, timestamps, marker='o', label=method_name)
+        plt.xlabel('Seed Nodes')
+        plt.ylabel('Timestamp to Reach Goal')
+    plt.title('Timestamp for Nodes to Reach Goal for Each Seed')
+    num_ticks = 50
+    if len(seeds) > num_ticks:
+        step = 10
+        plt.xticks(seeds[::step], rotation=45, fontsize=8)
+    else:
+        plt.xticks(seeds, rotation=45, fontsize=5)
+
+    plt.tight_layout()
+    plt.savefig(f"b_{assignment_num}.png")
+    plt.show()
+
 if __name__ == "__main__":
     edges_by_timestamp, nodes, edges = read_file()
     networks, infected_nodes_by_timestamp, sorted_infected_nodes = get_networks(edges_by_timestamp, nodes, 0.8)
@@ -264,15 +290,19 @@ if __name__ == "__main__":
     # plot_infected_nodes_by_seed(sorted_infected_nodes, "9")
 
     # PART B.10
-    centrality(nodes, edges, sorted_infected_nodes, edges_by_timestamp, "10")
+    # centrality(nodes, edges, sorted_infected_nodes, edges_by_timestamp, "10")
 
     # PART B.11
-    centrality(nodes, edges, sorted_infected_nodes, edges_by_timestamp, "11")
+    # centrality(nodes, edges, sorted_infected_nodes, edges_by_timestamp, "11")
 
     # # For 12 we need to rank on 10% reached.
-    # networks, infected_nodes_by_timestamp, sorted_infected_nodes_12_1 = get_networks(edges_by_timestamp, nodes, 0.1)
-    # plot_infected_nodes_by_seed(sorted_infected_nodes_12_1, "12_1")
-
-    # Last metric bit more work, Need sum of timestamps divided by 80% * num of nodes
-    # networks, infected_nodes_by_timestamp, sorted_infected_nodes_12_2 = get_networks_b12(edges_by_timestamp, nodes, 0.8)
-    # plot_infected_nodes_by_seed(sorted_infected_nodes_12_2, "12_2")
+    networks_r, infected_nodes_by_timestamp_r, sorted_infected_nodes_r = get_networks(edges_by_timestamp, nodes, 0.8)
+    networks_r_star, infected_nodes_by_timestamp_r_star, sorted_infected_nodes_r_star = get_networks(edges_by_timestamp, nodes, 0.1)
+    networks_r_accent, infected_nodes_by_timestamp_r_accent, sorted_infected_nodes_r_accent = get_networks_b12(edges_by_timestamp, nodes, 0.8)
+    print(f"len r = {len(sorted_infected_nodes_r)}, len r* = {len(sorted_infected_nodes_r_star)}, len r'= {len(sorted_infected_nodes_r_accent)}")
+    infection_metrics = {
+        "R": sorted_infected_nodes_r,
+        "R*": sorted_infected_nodes_r_star,
+        "R'": sorted_infected_nodes_r_accent
+    }  
+    plot_different_infection_metrics(infection_metrics, "12")
