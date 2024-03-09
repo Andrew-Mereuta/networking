@@ -10,6 +10,9 @@ Assignment Group 1
 
 ## Assignments
 For the assignment we consider edge (0, 1) and edge (1, 0) - the same edge, as it is stated that graph is undirected. Furthermore, it does not matter how often edge appears in the file - this information influence only weight, not number of edges.
+For the questions A.1 - A.6 (including), when calculating number of edges,
+we consider only the number of unique edges. Example: [(1, 0), (1, 0), (0, 1)] -> single unique edge.
+
 ### A.1
 Number of nodes is: 403. \
 Number of links is: 9565. \
