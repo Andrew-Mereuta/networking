@@ -92,7 +92,7 @@ def first_contact_in_network(edges_by_timestamp):
             sorted_grouped[val].append(key)
         else:
             sorted_grouped[val] = [key]
-    return dict(sorted(sorted_grouped.items(), key=lambda x: x[0], reverse=True))
+    return dict(sorted(sorted_grouped.items(), key=lambda x: x[0]))
 
 
 def find_first_timestamp_and_link(edges_by_timestamp, seed):
