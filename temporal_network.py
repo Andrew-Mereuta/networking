@@ -144,7 +144,7 @@ def get_networks(edges_by_timestamp: dict, nodes: list[int], infection_goal):
             sorted_grouped[val].append(key)
         else:
             sorted_grouped[val] = [key]
-    return networks, infected_nodes_by_timestamp, dict(sorted(sorted_grouped.items(), key=lambda x: x[0], reverse=True)),  dict(sorted(infected_nodes_by_seed.items(), key=lambda item: item[1]))
+    return networks, infected_nodes_by_timestamp, dict(sorted(sorted_grouped.items(), key=lambda x: x[0])),  dict(sorted(infected_nodes_by_seed.items(), key=lambda item: item[1]))
 
 
 def calculate_average_infected(infected_nodes_by_timestamp):
