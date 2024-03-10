@@ -60,16 +60,17 @@ Note: the graph might look a bit strange, in the sense, that some lines go to th
 by example from the plot. Node-seed #42 infects 80% of the nodes, later than node-seed #70. 
 
 ### B.10: 
-TODO: idk if we need to do what is stated after Attention: It is possible that many nodes have the same rank; 
 ![recognition rate](./b_10.png)
+TODO: idk if we need to do what is stated after Attention: It is possible that many nodes have the same rank;
+
 TODO: Answer: Which metric, the degree or the strength could better predict the influence of the
 nodes? Why?
 I think there is no general answer, degree works better when has 15+% and works worse with small %.
 When looking at the graph, the strength metric seems to be an overal better predictor then the degree metric, however, on a range of 15 to 45 percent, the performance of the degree is slightly better. Wheb the fraction can be lower than 15 percent, the strength significantly outperformes the degree metric.
 
 ### B.11: 
-TODO: Compare this nodal property with degree and strength: which feature better/worse reflects how influential a node is and why?
 ![recognition rate contact](./b_11.png)
+TODO: Compare this nodal property with degree and strength: which feature better/worse reflects how influential a node is and why?
 The f rating has the highest recognition, better predictor than strength and degree. 
 
 ### B.12
