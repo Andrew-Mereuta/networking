@@ -102,7 +102,7 @@ def get_networks(edges_by_timestamp: dict, nodes: list[int], infection_goal):
         first_timestamp, link = find_first_timestamp_and_link(edges_by_timestamp, seed)
         infected_links = [link]
         # TODO: check boundary
-        for timestamp in range(first_timestamp, len(edges_by_timestamp)):
+        for timestamp in range(first_timestamp, len(edges_by_timestamp.keys())):
             infected_ns, infected_ls = infect(edges_by_timestamp, infected_nodes, timestamp)
             infected_nodes = infected_ns.union(infected_nodes)
             infected_links.extend(infected_ls)

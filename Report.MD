@@ -55,7 +55,9 @@ The graph looks like this, because the standard deviation is also plotted around
 
 ### B.9
 ![Infected_80_percent](./b_9.png)
-The graph shows the timestep in which each node i has infected 80% of the graph as the seed node., assuming the nodes are sorted from fastest to slowest infection rates.
+The graph shows the timestep in which each node _i_ has infected 80% of the graph as the seed node., assuming the nodes are sorted from fastest to slowest infection rates.
+Note: the graph might look a bit strange, in the sense, that some lines go to the right, then to the left. This can be explained
+by example from the plot. Node-seed #42 infects 80% of the nodes, later than node-seed #70. 
 
 ### B.10: 
 TODO: idk if we need to do what is stated after Attention: It is possible that many nodes have the same rank; 
