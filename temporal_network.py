@@ -1,3 +1,5 @@
+import random
+
 import pandas as pd
 import igraph as ig
 import numpy as np
@@ -35,8 +37,14 @@ def calculate_degree(edges, nodes):
             degrees[n2] += 1
             used_edges.add((n1, n2))
             used_edges.add((n2, n1))
-
-    return sorted(nodes, key=lambda x: degrees[x], reverse=True)
+    sorted_grouped = {}
+    degrees = dict(sorted(degrees.items(), key=lambda item: item[1], reverse=True))
+    for key, val in sorted(degrees.items()):
+        if val in sorted_grouped:
+            sorted_grouped[val].append(key)
+        else:
+            sorted_grouped[val] = [key]
+    return dict(sorted(sorted_grouped.items(), key=lambda x: x[0], reverse=True))
 
 
 def calculate_weight_node(edges, nodes):
@@ -55,7 +63,14 @@ def calculate_weight_node(edges, nodes):
         for edge, weight in weight_by_edge.items():
             if node in edge:
                 node_strength[node] += weight
-    return sorted(nodes, key=lambda x: node_strength[x], reverse=True)
+    sorted_grouped = {}
+    degrees = dict(sorted(node_strength.items(), key=lambda item: item[1], reverse=True))
+    for key, val in sorted(degrees.items()):
+        if val in sorted_grouped:
+            sorted_grouped[val].append(key)
+        else:
+            sorted_grouped[val] = [key]
+    return dict(sorted(sorted_grouped.items(), key=lambda x: x[0], reverse=True))
 
 
 def first_contact_in_network(edges_by_timestamp):
@@ -70,7 +85,14 @@ def first_contact_in_network(edges_by_timestamp):
                 first_contact[n2] = min(timestamp, first_contact[n2])
             else:
                 first_contact[n2] = timestamp
-    return dict(sorted(first_contact.items(), key=lambda x: x[1]))
+    first_contact = dict(sorted(first_contact.items(), key=lambda item: item[1], reverse=True))
+    sorted_grouped = {}
+    for key, val in sorted(first_contact.items()):
+        if val in sorted_grouped:
+            sorted_grouped[val].append(key)
+        else:
+            sorted_grouped[val] = [key]
+    return dict(sorted(sorted_grouped.items(), key=lambda x: x[0], reverse=True))
 
 
 def find_first_timestamp_and_link(edges_by_timestamp, seed):
@@ -115,8 +137,14 @@ def get_networks(edges_by_timestamp: dict, nodes: list[int], infection_goal):
                     infected_nodes_by_seed[seed] = timestamp
 
         networks.append(ig.Graph(infected_links))
-
-    return networks, infected_nodes_by_timestamp, dict(sorted(infected_nodes_by_seed.items(), key=lambda item: item[1]))
+    sorted_grouped = {}
+    # infected_nodes_by_seed = dict(sorted(infected_nodes_by_seed.items(), key=lambda item: item[1]))
+    for key, val in sorted(infected_nodes_by_seed.items()):
+        if val in sorted_grouped:
+            sorted_grouped[val].append(key)
+        else:
+            sorted_grouped[val] = [key]
+    return networks, infected_nodes_by_timestamp, dict(sorted(sorted_grouped.items(), key=lambda x: x[0], reverse=True)),  dict(sorted(infected_nodes_by_seed.items(), key=lambda item: item[1]))
 
 
 def calculate_average_infected(infected_nodes_by_timestamp):
@@ -178,24 +206,42 @@ def plot_infected_nodes_by_seed(sorted_infected_nodes, assignment_num):
 
 #b10
 def centrality(nodes, edges, sorted_infected_nodes, edges_by_timestamp, num):
-    sorted_infected_nodes = list(sorted_infected_nodes.keys())
+    # sorted_infected_nodes = list(sorted_infected_nodes.keys())
     f = [0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5]
     degrees = calculate_degree(edges, nodes)
     weights = calculate_weight_node(edges, nodes)
-    fc = list(first_contact_in_network(edges_by_timestamp).keys())
+    fc = first_contact_in_network(edges_by_timestamp)
     rRD_values = []
     rRS_values = []
     rFS_values = []
     for v in f:
         fraction = int(v * len(nodes))
-        Rf = set(sorted_infected_nodes[0:fraction])
-        Rf_degree = set(degrees[0:fraction])
-        Rf_strength = set(weights[0:fraction])
-        Rf_contact = set(fc[0:fraction])
-        rRD = len(Rf.intersection(Rf_degree))/len(Rf)
-        rRS = len(Rf.intersection(Rf_strength))/len(Rf)
-        rFS = len(Rf.intersection(Rf_contact))/len(Rf)
-
+        rRD = 0
+        rRS = 0
+        rFS = 0
+        for _ in range(1000):
+            Rf_degree = set()
+            Rf_strength = set()
+            Rf = set()
+            Rf_contact = set()
+            degreess = list(degrees.items())[0:int(v * len(nodes))]
+            for key, value in degreess:
+                Rf_degree.add(random.choice(value))
+            weightss = list(weights.items())[0:int(v * len(nodes))]
+            for key, value in weightss:
+                Rf_strength.add(random.choice(value))
+            sorted_infected_nodess = list(sorted_infected_nodes.items())[0:int(v * len(nodes))]
+            for key, value in sorted_infected_nodess:
+                Rf.add(random.choice(value))
+            fcs = list(fc.items())[0:int(v * len(nodes))]
+            for key, value in fcs:
+                Rf_contact.add(random.choice(value))
+            rRD += len(Rf.intersection(Rf_degree))/len(Rf)
+            rRS += len(Rf.intersection(Rf_strength))/len(Rf)
+            rFS += len(Rf.intersection(Rf_contact))/len(Rf)
+        rRD /= 1000
+        rRS /= 1000
+        rFS /= 1000
         rRD_values.append(rRD)
         rRS_values.append(rRS)
         rFS_values.append(rFS)
@@ -281,28 +327,28 @@ def plot_different_infection_metrics(sorted_infected_nodes, assignment_num):
 
 if __name__ == "__main__":
     edges_by_timestamp, nodes, edges = read_file()
-    networks, infected_nodes_by_timestamp, sorted_infected_nodes = get_networks(edges_by_timestamp, nodes, 0.8)
+    networks, infected_nodes_by_timestamp, sorted_infected_nodes, not_map = get_networks(edges_by_timestamp, nodes, 0.8)
 
     # PART B.8
     # plot_average_infected_with_errorbars(infected_nodes_by_timestamp)
 
     # PART B.9
-    # plot_infected_nodes_by_seed(sorted_infected_nodes, "9")
+    plot_infected_nodes_by_seed(not_map, "9")
 
     # PART B.10
-    # centrality(nodes, edges, sorted_infected_nodes, edges_by_timestamp, "10")
+    centrality(nodes, edges, sorted_infected_nodes, edges_by_timestamp, "10")
 
     # PART B.11
-    # centrality(nodes, edges, sorted_infected_nodes, edges_by_timestamp, "11")
+    centrality(nodes, edges, sorted_infected_nodes, edges_by_timestamp, "11")
 
     # # For 12 we need to rank on 10% reached.
-    networks_r, infected_nodes_by_timestamp_r, sorted_infected_nodes_r = get_networks(edges_by_timestamp, nodes, 0.8)
-    networks_r_star, infected_nodes_by_timestamp_r_star, sorted_infected_nodes_r_star = get_networks(edges_by_timestamp, nodes, 0.1)
+    networks_r, infected_nodes_by_timestamp_r, sorted_infected_nodes_r, not_map_r = get_networks(edges_by_timestamp, nodes, 0.8)
+    networks_r_star, infected_nodes_by_timestamp_r_star, sorted_infected_nodes_r_star, not_map_r_star = get_networks(edges_by_timestamp, nodes, 0.1)
     networks_r_accent, infected_nodes_by_timestamp_r_accent, sorted_infected_nodes_r_accent = get_networks_b12(edges_by_timestamp, nodes, 0.8)
-    print(f"len r = {len(sorted_infected_nodes_r)}, len r* = {len(sorted_infected_nodes_r_star)}, len r'= {len(sorted_infected_nodes_r_accent)}")
+    print(f"len r = {len(not_map_r)}, len r* = {len(not_map_r_star)}, len r'= {len(sorted_infected_nodes_r_accent)}")
     infection_metrics = {
-        "R": sorted_infected_nodes_r,
-        "R*": sorted_infected_nodes_r_star,
+        "R": not_map_r,
+        "R*": not_map_r_star,
         "R'": sorted_infected_nodes_r_accent
-    }  
+    }
     plot_different_infection_metrics(infection_metrics, "12")
