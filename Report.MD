@@ -61,17 +61,28 @@ by example from the plot. Node-seed #42 infects 80% of the nodes, later than nod
 
 ### B.10: 
 ![recognition rate](./b_10.png)
-TODO: idk if we need to do what is stated after Attention: It is possible that many nodes have the same rank;
+The recognition rate, evaluates how many of the actual influential nodes in the network are being identified by a metric like the strength or degree metrics.
+This is done by comparing what percentage of the top identified nodes is actually in the top influential nodes of teh network, so the higher the .
+The x-axis in the graph represents the fraction of the top influential nodes that we compare the top-influential nodes of our chosen metrics to. 
 
-TODO: Answer: Which metric, the degree or the strength could better predict the influence of the
-nodes? Why?
-I think there is no general answer, degree works better when has 15+% and works worse with small %.
-When looking at the graph, the strength metric seems to be an overal better predictor then the degree metric, however, on a range of 15 to 45 percent, the performance of the degree is slightly better. Wheb the fraction can be lower than 15 percent, the strength significantly outperformes the degree metric.
+Looking at the graph provided above, we can see that up to approximately a fraction of 0.35, thee degree metric has a better recognition of influential nodes than the strength metric, and from a fraction bigger than 0.35, the degree recognition does not improve anymore, while the strength metric keeps improving on the recognition. A reason that the degree metric performance stays the same, can be that when the fraction becomes to big, more and more nodes have the same degree, as we can see in picture of A.2. This means that the metric sees these as equally influential, while in reality that does not have to be the case.
+
+To find influential nodes fairly easily, the degree metric seems to be the best. This is mainly because it performs best on smaller fractions. Working with smaller fractions can significantly improve the computation time.
 
 ### B.11: 
 ![recognition rate contact](./b_11.png)
-TODO: Compare this nodal property with degree and strength: which feature better/worse reflects how influential a node is and why?
-The f rating has the highest recognition, better predictor than strength and degree. 
+In this exercise a third metric was added. This metric, determines the influence of a node based on when has contact with the information. This metric improves in performance, the bigger the fraction becomes. only from a fraction bigger than 0.4 to 0.45 it starts to really perform better than the two other metrics.
+
 
 ### B.12
-![Metrics infection speed](./b_12.png)
+![](./b_12_1.png)
+![](./b_12_2.png)
+![](./b_12_3.png)
+When comparing R, R* and R'to each other, We can see that R has a worse recognition rate than both R* an R'. Next tot that we also see that R* outperforms R'.
+
+We can explain this by a similar reasoning as used in B.10.
+The biggest difference between R* and R'and R is that R* only checks how fast 10% of all the nodes are infected. R and R' check when 80% are used of the are reached.
+By checking a smaller portion, the time difference of the more influential nodes to reach the wanted amount of nodes is probably bigger than when the fraction is higher. Especially  considering that the average hop count is approximately 2.
+With this small hop count, the time to reach a big fraction of all the nodes, will most likely become really similar. 
+This is because when you have already covered a bigger part of the network, each timestep will infect a way bigger group than before because the graph is closely connected.
+While for R*, where we check the time for only 10% to be infected, nodes that have many nodes within close reach perform way better early on than nodes with less nodes close by. 
