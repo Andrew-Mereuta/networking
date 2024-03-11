@@ -166,9 +166,9 @@ def get_networksb12(edges_by_timestamp: dict, nodes: list[int], infection_goal):
                 infected_nodes_by_timestamp[timestamp] = [len(infected_nodes)]
             if len(infected_nodes) <= infection_goal * len(nodes):
                 if seed in infected_nodes_by_seed:
-                    infected_nodes_by_seed[seed].append(timestamp - first_timestamp)
+                    infected_nodes_by_seed[seed].append(timestamp)
                 else:
-                    infected_nodes_by_seed[seed] = [(timestamp - first_timestamp)]
+                    infected_nodes_by_seed[seed] = [(timestamp)]
 
         networks.append(ig.Graph(infected_links))
     average_times = {}
