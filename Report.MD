@@ -80,6 +80,10 @@ In this exercise a third metric was added. This metric, determines the influence
 ![](./b_12_3.png)
 When comparing R, R* and R'to each other, We can see that R has a worse recognition rate than both R* an R'. Next tot that we also see that R* outperforms R'.
 
+
+ (Basic Idea, small portion, less influential nodes have harder time to get to 10% than more influential, so at the start bigger time difference.
+ For fraction 70% of all nodes, the more influential nodes probably get included at some point, speeding up infection rates of less influential nodes as well, this can make that average times to reach 80% are closer to each other than times to reach 10%, making 10% a better metric. Figure of B9 shows that for the most nodes the time to reach 80% are really similar for most nodes.)
+
 We can explain this by a similar reasoning as used in B.10.
 The biggest difference between R* and R'and R is that R* only checks how fast 10% of all the nodes are infected. R and R' check when 80% are used of the are reached.
 By checking a smaller portion, the time difference of the more influential nodes to reach the wanted amount of nodes is probably bigger than when the fraction is higher. Especially  considering that the average hop count is approximately 2.
