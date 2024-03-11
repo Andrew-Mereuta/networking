@@ -144,31 +144,24 @@ def get_networks(edges_by_timestamp: dict, nodes: list[int], infection_goal):
             sorted_grouped[val].append(key)
         else:
             sorted_grouped[val] = [key]
-    return networks, infected_nodes_by_timestamp, dict(sorted(sorted_grouped.items(), key=lambda x: x[0])),  dict(sorted(infected_nodes_by_seed.items(), key=lambda item: item[1]))
+    return networks, infected_nodes_by_timestamp, dict(sorted(sorted_grouped.items(), key=lambda x: x[0])), dict(
+        sorted(infected_nodes_by_seed.items(), key=lambda item: item[1]))
+
 
 def get_networksb12(edges_by_timestamp: dict, nodes: list[int], infection_goal):
-    networks = []
-    infected_nodes_by_timestamp = {}
     infected_nodes_by_seed = {}
     for seed in nodes:
         infected_nodes = set()
         infected_nodes.add(seed)
         first_timestamp, link = find_first_timestamp_and_link(edges_by_timestamp, seed)
-        infected_links = [link]
-        t = 0
-        # TODO: check boundary
+        t = 0  # flag
         for timestamp in range(first_timestamp, len(edges_by_timestamp.keys())):
-            infected_ns, infected_ls = infect(edges_by_timestamp, infected_nodes, timestamp)
+            infected_ns, unused = infect(edges_by_timestamp, infected_nodes, timestamp)
             inf_l = infected_ns - infected_nodes
-
             infected_nodes = infected_ns.union(infected_nodes)
-            infected_links.extend(infected_ls)
-            if timestamp in infected_nodes_by_timestamp:
-                infected_nodes_by_timestamp[timestamp].append(len(infected_nodes))
-            else:
-                infected_nodes_by_timestamp[timestamp] = [len(infected_nodes)]
+
             if len(infected_nodes) <= infection_goal * len(nodes):
-                for s in range(len(inf_l)):
+                for _ in range(len(inf_l)):
                     if seed in infected_nodes_by_seed:
                         infected_nodes_by_seed[seed].append(timestamp)
                     else:
@@ -181,18 +174,18 @@ def get_networksb12(edges_by_timestamp: dict, nodes: list[int], infection_goal):
                         else:
                             infected_nodes_by_seed[seed] = [timestamp]
                     t += 1
-        networks.append(ig.Graph(infected_links))
+
     average_times = {}
     for seed, times in infected_nodes_by_seed.items():
         average_times[seed] = sum(times) / len(times)
+
     sorted_grouped = {}
-    # infected_nodes_by_seed = dict(sorted(infected_nodes_by_seed.items(), key=lambda item: item[1]))
     for key, val in sorted(average_times.items()):
         if val in sorted_grouped:
             sorted_grouped[val].append(key)
         else:
             sorted_grouped[val] = [key]
-    return networks, infected_nodes_by_timestamp, dict(sorted(sorted_grouped.items(), key=lambda x: x[0])),  dict(sorted(average_times.items(), key=lambda item: item[1]))
+    return dict(sorted(sorted_grouped.items(), key=lambda x: x[0]))
 
 
 def calculate_average_infected(infected_nodes_by_timestamp):
@@ -210,6 +203,7 @@ def calculate_standard_deviation(infected_nodes_by_timestamp):
         std_deviation = np.std(num_infected_list)
         std_deviation_by_timestamp[timestamp] = std_deviation
     return std_deviation_by_timestamp
+
 
 def plot_average_infected_with_errorbars(infected_nodes_by_timestamp):
     timestamps = list(infected_nodes_by_timestamp.keys())
@@ -232,7 +226,6 @@ def plot_average_infected_with_errorbars(infected_nodes_by_timestamp):
 
 # b9
 def plot_infected_nodes_by_seed(sorted_infected_nodes, assignment_num):
-
     seeds = list(sorted_infected_nodes.keys())
     timestamps = list(sorted_infected_nodes.values())
 
@@ -252,7 +245,8 @@ def plot_infected_nodes_by_seed(sorted_infected_nodes, assignment_num):
     plt.savefig(f"b_{assignment_num}.png")
     plt.show()
 
-#b10
+
+# b10
 def centrality(nodes, edges, sorted_infected_nodes, edges_by_timestamp, num):
     # sorted_infected_nodes = list(sorted_infected_nodes.keys())
     f = [0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5]
@@ -263,7 +257,6 @@ def centrality(nodes, edges, sorted_infected_nodes, edges_by_timestamp, num):
     rRS_values = []
     rFS_values = []
     for v in f:
-        fraction = int(v * len(nodes))
         rRD = 0
         rRS = 0
         rFS = 0
@@ -284,9 +277,9 @@ def centrality(nodes, edges, sorted_infected_nodes, edges_by_timestamp, num):
             fcs = list(fc.items())[0:int(v * len(nodes))]
             for key, value in fcs:
                 Rf_contact.add(random.choice(value))
-            rRD += len(Rf.intersection(Rf_degree))/len(Rf)
-            rRS += len(Rf.intersection(Rf_strength))/len(Rf)
-            rFS += len(Rf.intersection(Rf_contact))/len(Rf)
+            rRD += len(Rf.intersection(Rf_degree)) / len(Rf)
+            rRS += len(Rf.intersection(Rf_strength)) / len(Rf)
+            rFS += len(Rf.intersection(Rf_contact)) / len(Rf)
         rRD /= 1000
         rRS /= 1000
         rFS /= 1000
@@ -315,6 +308,7 @@ def centrality(nodes, edges, sorted_infected_nodes, edges_by_timestamp, num):
         plt.savefig('b_11.png')
         plt.show()
 
+
 def get_networks_b12(edges_by_timestamp: dict, nodes: list[int], infection_goal):
     networks = []
     infected_nodes_by_timestamp = {}
@@ -331,7 +325,7 @@ def get_networks_b12(edges_by_timestamp: dict, nodes: list[int], infection_goal)
             infected_ns, infected_ls = infect(edges_by_timestamp, infected_nodes, timestamp)
             infected_nodes = infected_ns.union(infected_nodes)
             infected_links.extend(infected_ls)
-            
+
             total_time += timestamp * (len(infected_nodes) - old_num_infected_nodes)
 
             if timestamp in infected_nodes_by_timestamp:
@@ -340,7 +334,7 @@ def get_networks_b12(edges_by_timestamp: dict, nodes: list[int], infection_goal)
                 infected_nodes_by_timestamp[timestamp] = [len(infected_nodes)]
             if seed not in infected_nodes_by_seed:
                 if len(infected_nodes) > infection_goal * len(nodes):
-                    infected_nodes_by_seed[seed] = total_time/(infection_goal*len(nodes))
+                    infected_nodes_by_seed[seed] = total_time / (infection_goal * len(nodes))
 
         networks.append(ig.Graph(infected_links))
 
@@ -351,20 +345,20 @@ def get_networks_b12(edges_by_timestamp: dict, nodes: list[int], infection_goal)
         else:
             sorted_grouped[val] = [key]
 
-    return networks, infected_nodes_by_timestamp, dict(sorted(sorted_grouped.items(), key=lambda x: x[0])), dict(sorted(infected_nodes_by_seed.items(), key=lambda item: item[1]))
+    return networks, infected_nodes_by_timestamp, dict(sorted(sorted_grouped.items(), key=lambda x: x[0])), dict(
+        sorted(infected_nodes_by_seed.items(), key=lambda item: item[1]))
 
 
 # b12
 def plot_different_infection_metrics(sorted_infected_nodes, assignment_num):
-
     seeds = list(sorted_infected_nodes.keys())
     timestamps = list(sorted_infected_nodes.values())
-    
+
     plt.figure(figsize=(10, 6))
     for method_name, infected_nodes in sorted_infected_nodes.items():
         print(method_name)
         seeds = list(infected_nodes.keys())
-        timestamps = list(infected_nodes.values())   
+        timestamps = list(infected_nodes.values())
         plt.plot(seeds, timestamps, marker='o', label=method_name)
         plt.xlabel('Seed Nodes')
         plt.ylabel('Timestamp to Reach Goal')
@@ -380,69 +374,70 @@ def plot_different_infection_metrics(sorted_infected_nodes, assignment_num):
     plt.savefig(f"b_{assignment_num}.png")
     plt.show()
 
-def b12(sorted_infected_nodes_r, sorted_infected_nodes_r_star, sorted_infected_nodes_r_accent, num):
-        f = [0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5]
-        rRD_values = []
-        rRS_values = []
-        rFS_values = []
-        for v in f:
-            fraction = int(v * len(nodes))
-            rRD = 0
-            rRS = 0
-            rFS = 0
-            for _ in range(1000):
-                Rf_star = set()
-                Rf_accent = set()
-                Rf = set()
-                degreess = list(sorted_infected_nodes_r.items())[0:int(v * len(nodes))]
-                for key, value in degreess:
-                    Rf.add(random.choice(value))
-                weightss = list(sorted_infected_nodes_r_star.items())[0:int(v * len(nodes))]
-                for key, value in weightss:
-                    Rf_star.add(random.choice(value))
-                sorted_infected_nodess = list(sorted_infected_nodes_r_accent.items())[0:int(v * len(nodes))]
-                for key, value in sorted_infected_nodess:
-                    Rf_accent.add(random.choice(value))
-                rRD += len(Rf.intersection(Rf_star)) / len(Rf)
-                rRS += len(Rf.intersection(Rf_accent)) / len(Rf)
-            rRD /= 1000
-            rRS /= 1000
-            rFS /= 1000
-            rRD_values.append(rRD)
-            rRS_values.append(rRS)
-            rFS_values.append(rFS)
 
-        plt.figure(figsize=(10, 6))
-        if num == '1':
-            plt.plot(f, rRD_values, marker='o', label='rf star')
-            plt.plot(f, rRS_values, marker='s', label='rf accent')
-            plt.xlabel('Fraction according to nodes influence')
-            plt.ylabel('Recognition Rate')
-            plt.title('Recognition Rate for rf* and rf\' for r')
-            plt.xticks(f)
-            plt.legend()
-            plt.savefig('b_12_1.png')
-            plt.show()
-        if num == '2':
-            plt.plot(f, rRD_values, marker='o', label='rf usual')
-            plt.plot(f, rRS_values, marker='s', label='rf star')
-            plt.xlabel('Fraction according to nodes influence')
-            plt.ylabel('Recognition Rate')
-            plt.title('Recognition Rate for rf and rf* for r accent')
-            plt.xticks(f)
-            plt.legend()
-            plt.savefig('b_12_2.png')
-            plt.show()
-        if num == '3':
-            plt.plot(f, rRD_values, marker='o', label='rf usual')
-            plt.plot(f, rRS_values, marker='s', label='rf accent')
-            plt.xlabel('Fraction according to nodes influence')
-            plt.ylabel('Recognition Rate')
-            plt.title('Recognition Rate for rf and rf\' for r star')
-            plt.xticks(f)
-            plt.legend()
-            plt.savefig('b_12_3.png')
-            plt.show()
+def b12(sorted_infected_nodes_r, sorted_infected_nodes_r_star, sorted_infected_nodes_r_accent, num):
+    f = [0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5]
+    rRD_values = []
+    rRS_values = []
+    rFS_values = []
+    for v in f:
+        rRD = 0
+        rRS = 0
+        rFS = 0
+        for _ in range(1000):
+            Rf_star = set()
+            Rf_accent = set()
+            Rf = set()
+            degreess = list(sorted_infected_nodes_r.items())[0:int(v * len(nodes))]
+            for key, value in degreess:
+                Rf.add(random.choice(value))
+            weightss = list(sorted_infected_nodes_r_star.items())[0:int(v * len(nodes))]
+            for key, value in weightss:
+                Rf_star.add(random.choice(value))
+            sorted_infected_nodess = list(sorted_infected_nodes_r_accent.items())[0:int(v * len(nodes))]
+            for key, value in sorted_infected_nodess:
+                Rf_accent.add(random.choice(value))
+            rRD += len(Rf.intersection(Rf_star)) / len(Rf)
+            rRS += len(Rf.intersection(Rf_accent)) / len(Rf)
+        rRD /= 1000
+        rRS /= 1000
+        rFS /= 1000
+        rRD_values.append(rRD)
+        rRS_values.append(rRS)
+        rFS_values.append(rFS)
+
+    plt.figure(figsize=(10, 6))
+    if num == '1':
+        plt.plot(f, rRD_values, marker='o', label='r*')
+        plt.plot(f, rRS_values, marker='s', label='r\'')
+        plt.xlabel('Fraction according to nodes influence')
+        plt.ylabel('Recognition Rate')
+        plt.title('Recognition Rate for r* and r\' with regards to r')
+        plt.xticks(f)
+        plt.legend()
+        plt.savefig('b_12_1.png')
+        plt.show()
+    if num == '2':
+        plt.plot(f, rRD_values, marker='o', label='r')
+        plt.plot(f, rRS_values, marker='s', label='r*')
+        plt.xlabel('Fraction according to nodes influence')
+        plt.ylabel('Recognition Rate')
+        plt.title('Recognition Rate for r and r* with regards to r\'')
+        plt.xticks(f)
+        plt.legend()
+        plt.savefig('b_12_2.png')
+        plt.show()
+    if num == '3':
+        plt.plot(f, rRD_values, marker='o', label='r')
+        plt.plot(f, rRS_values, marker='s', label='r\'')
+        plt.xlabel('Fraction according to nodes influence')
+        plt.ylabel('Recognition Rate')
+        plt.title('Recognition Rate for r and r\' with regards to r*')
+        plt.xticks(f)
+        plt.legend()
+        plt.savefig('b_12_3.png')
+        plt.show()
+
 
 if __name__ == "__main__":
     edges_by_timestamp, nodes, edges = read_file()
@@ -462,8 +457,9 @@ if __name__ == "__main__":
 
     # # For 12 we need to rank on 10% reached.
     # networks_r, infected_nodes_by_timestamp_r, sorted_infected_nodes_r, not_map_r = get_networks(edges_by_timestamp, nodes, 0.8)
-    networks_r_star, infected_nodes_by_timestamp_r_star, sorted_infected_nodes_r_star, not_map_r_star = get_networks(edges_by_timestamp, nodes, 0.1)
-    networks_r_accent, infected_nodes_by_timestamp_r_accent, sorted_infected_nodes_r_accent, not_map_r_star = get_networksb12(edges_by_timestamp, nodes, 0.8)
+    networks_r_star, infected_nodes_by_timestamp_r_star, sorted_infected_nodes_r_star, not_map_r_star = get_networks(
+        edges_by_timestamp, nodes, 0.1)
+    sorted_infected_nodes_r_accent = get_networksb12(edges_by_timestamp, nodes, 0.8)
     # print(f"len r = {len(not_map_r)}, len r* = {len(not_map_r_star)}, len r'= {len(sorted_infected_nodes_r_accent)}")
     # infection_metrics = {
     #     "R": not_map_r,
@@ -474,9 +470,3 @@ if __name__ == "__main__":
     b12(sorted_infected_nodes, sorted_infected_nodes_r_star, sorted_infected_nodes_r_accent, '1')
     b12(sorted_infected_nodes_r_accent, sorted_infected_nodes, sorted_infected_nodes_r_star, '2')
     b12(sorted_infected_nodes_r_star, sorted_infected_nodes, sorted_infected_nodes_r_accent, '3')
-
-
-
-
-
-

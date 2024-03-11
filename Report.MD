@@ -55,38 +55,38 @@ The graph looks like this, because the standard deviation is also plotted around
 
 ### B.9
 ![Infected_80_percent](./b_9.png)
-The graph shows the timestep in which each node _i_ has infected 80% of the graph as the seed node., assuming the nodes are sorted from fastest to slowest infection rates.
+The graph shows the timestep in which each node _i_ has infected 80% of the graph as the seed node, assuming the nodes are sorted from fastest to slowest infection rates.
 Note: the graph might look a bit strange, in the sense, that some lines go to the right, then to the left. This can be explained
 by example from the plot. Node-seed #42 infects 80% of the nodes, later than node-seed #70. 
 
 ### B.10: 
 ![recognition rate](./b_10.png)
-The recognition rate, evaluates how many of the actual influential nodes in the network are being identified by a metric like the strength or degree metrics.
-This is done by comparing what percentage of the top identified nodes is actually in the top influential nodes of teh network, so the higher the .
-The x-axis in the graph represents the fraction of the top influential nodes that we compare the top-influential nodes of our chosen metrics to. 
 
-Looking at the graph provided above, we can see that up to approximately a fraction of 0.35, thee degree metric has a better recognition of influential nodes than the strength metric, and from a fraction bigger than 0.35, the degree recognition does not improve anymore, while the strength metric keeps improving on the recognition. A reason that the degree metric performance stays the same, can be that when the fraction becomes to big, more and more nodes have the same degree, as we can see in picture of A.2. This means that the metric sees these as equally influential, while in reality that does not have to be the case.
+The blue line shows the correlation between the most infectious nodes (fastest to infect 80% of the nodes) and the nodes with the 
+highest degree.
+The orange line shows the correlation between the most infectious nodes (fastest to infect 80% of the nodes) and the nodes with the 
+highest strength.
+The degree at first grows faster than strength because infectious nodes should have many connections. 
+At some point we observe that strength starts to dominate. This happens because nodes not only have many connections, 
+but also these connections are distributed across time, causing higher infection rate. 
 
-To find influential nodes fairly easily, the degree metric seems to be the best. This is mainly because it performs best on smaller fractions. Working with smaller fractions can significantly improve the computation time.
+To better predict the influence of the nodes we should choose degree in cases when we do not have necessary data and we 
+have to compute it (because it just uses small fraction), however in case when the data is precomputed we should choose strength metric (because the recognition rate is higher).
 
 ### B.11: 
 ![recognition rate contact](./b_11.png)
-In this exercise a third metric was added. This metric, determines the influence of a node based on when has contact with the information. This metric improves in performance, the bigger the fraction becomes. only from a fraction bigger than 0.4 to 0.45 it starts to really perform better than the two other metrics.
-
+In this exercise a third metric was added. At the start, this metric poorly performs. Possible explanation could be that
+even if the node is infected at the start, it does not have many connections. However, we observe that this function grows
+following parabola trajectory. The intense growth of green line begins at around 0.3 fraction, which roughly corresponds to 30% percent of all the nodes. The growing rate can be due to the fact that the more nodes we take from first contact, the higher the probability that at least some of them have early connections with different nodes, thus they will intersect with most infectious nodes.
 
 ### B.12
 ![](./b_12_1.png)
 ![](./b_12_2.png)
 ![](./b_12_3.png)
-When comparing R, R* and R'to each other, We can see that R has a worse recognition rate than both R* an R'. Next tot that we also see that R* outperforms R'.
 
+In first graph, we can see that recognition rate between R and R* is higher than between R and R'. 
+This most probably happens due to the fact that the set of nodes which infect 10% fastly is big, thus it has higher probability to intersect with set of nodes that infect 80% fastly.
 
- (Basic Idea, small portion, less influential nodes have harder time to get to 10% than more influential, so at the start bigger time difference.
- For fraction 70% of all nodes, the more influential nodes probably get included at some point, speeding up infection rates of less influential nodes as well, this can make that average times to reach 80% are closer to each other than times to reach 10%, making 10% a better metric. Figure of B9 shows that for the most nodes the time to reach 80% are really similar for most nodes.)
+The second graph can be explained using the same logic.
 
-We can explain this by a similar reasoning as used in B.10.
-The biggest difference between R* and R'and R is that R* only checks how fast 10% of all the nodes are infected. R and R' check when 80% are used of the are reached.
-By checking a smaller portion, the time difference of the more influential nodes to reach the wanted amount of nodes is probably bigger than when the fraction is higher. Especially  considering that the average hop count is approximately 2.
-With this small hop count, the time to reach a big fraction of all the nodes, will most likely become really similar. 
-This is because when you have already covered a bigger part of the network, each timestep will infect a way bigger group than before because the graph is closely connected.
-While for R*, where we check the time for only 10% to be infected, nodes that have many nodes within close reach perform way better early on than nodes with less nodes close by. 
+The third graph shows that R' has higher recognition rate with regards to r*. We think that this may happen due to coincidence: average time to infect 80% correlates with nodes that infect 10% fastly.
