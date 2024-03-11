@@ -155,9 +155,12 @@ def get_networksb12(edges_by_timestamp: dict, nodes: list[int], infection_goal):
         infected_nodes.add(seed)
         first_timestamp, link = find_first_timestamp_and_link(edges_by_timestamp, seed)
         infected_links = [link]
+        t = 0
         # TODO: check boundary
         for timestamp in range(first_timestamp, len(edges_by_timestamp.keys())):
             infected_ns, infected_ls = infect(edges_by_timestamp, infected_nodes, timestamp)
+            inf_l = infected_ns - infected_nodes
+
             infected_nodes = infected_ns.union(infected_nodes)
             infected_links.extend(infected_ls)
             if timestamp in infected_nodes_by_timestamp:
@@ -165,11 +168,19 @@ def get_networksb12(edges_by_timestamp: dict, nodes: list[int], infection_goal):
             else:
                 infected_nodes_by_timestamp[timestamp] = [len(infected_nodes)]
             if len(infected_nodes) <= infection_goal * len(nodes):
-                if seed in infected_nodes_by_seed:
-                    infected_nodes_by_seed[seed].append(timestamp)
-                else:
-                    infected_nodes_by_seed[seed] = [(timestamp)]
-
+                for s in range(len(inf_l)):
+                    if seed in infected_nodes_by_seed:
+                        infected_nodes_by_seed[seed].append(timestamp)
+                    else:
+                        infected_nodes_by_seed[seed] = [timestamp]
+            else:
+                if t == 0:
+                    for s in range(len(inf_l)):
+                        if seed in infected_nodes_by_seed:
+                            infected_nodes_by_seed[seed].append(timestamp)
+                        else:
+                            infected_nodes_by_seed[seed] = [timestamp]
+                    t += 1
         networks.append(ig.Graph(infected_links))
     average_times = {}
     for seed, times in infected_nodes_by_seed.items():
